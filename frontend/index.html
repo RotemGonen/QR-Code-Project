@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>S3 File Upload</title>
+      <style>
+            body {
+                  font-family: Arial, sans-serif;
+                  padding: 20px;
+                  background-color: black;
+                  color: white;
+            }
+
+            form {
+                  display: flex;
+                  flex-direction: column;
+                  max-width: 400px;
+                  margin: auto;
+                  padding: 20px;
+                  background-color: #333;
+                  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            }
+
+            label {
+                  margin-bottom: 8px;
+            }
+
+            input,
+            button {
+                  margin-bottom: 12px;
+                  padding: 10px;
+                  font-size: 16px;
+                  border: 1px solid #ccc;
+                  border-radius: 4px;
+            }
+
+            button {
+                  background-color: #28a745;
+                  color: white;
+                  cursor: pointer;
+            }
+
+            button:hover {
+                  background-color: #218838;
+            }
+
+            .result {
+                  margin-top: 20px;
+                  text-align: center;
+            }
+
+            a {
+                  color: #4CAF50;
+                  text-decoration: none;
+            }
+
+            a:hover {
+                  text-decoration: underline;
+            }
+      </style>
+</head>
+
+<body>
+      <h1>Upload a File to S3</h1>
+      <form id="uploadForm">
+            <label for="url">File URL:</label>
+            <!-- Default URL set to a YouTube link -->
+            <input type="url" id="url" name="url" value="https://www.youtube.com/" required />
+
+            <button type="submit">Upload</button>
+      </form>
+
+      <div class="result" id="result"></div>
+
+      <script>
+            document.getElementById('uploadForm').addEventListener('submit', async function (e) {
+                  e.preventDefault();
+
+                  // Get form data
+                  const url = document.getElementById('url').value;
+
+                  // Log the URL that will be uploaded
+                  console.log('Form submitted. File URL:', url);
+
+                  // Prepare request payload
+                  const payload = { url: url };
+
+                  // Debugging: Log the payload
+                  console.log('Payload to be sent to backend:', payload);
+
+                  try {
+                        // Send the request to the backend
+                        const response = await fetch('http://localhost:8080/upload', {
+                              method: 'POST',
+                              headers: {
+                                    'Content-Type': 'application/json'
+                              },
+                              body: JSON.stringify(payload)
+                        });
+
+                        // Debugging: Log the full response
+                        console.log('Response from backend:', response);
+
+                        const data = await response.json();
+
+                        if (response.ok) {
+                              // Debugging: Log success response
+                              console.log('File uploaded successfully:', data);
+
+                              document.getElementById('result').innerHTML = `
+            <p>File uploaded successfully!</p>
+            <p><a href="${data.s3Url}" target="_blank">Click here to view the file</a></p>
+          `;
+                        } else {
+                              // Debugging: Log error response
+                              console.error('Error uploading file:', data.error);
+                              document.getElementById('result').innerHTML = `<p>Error uploading file: ${data.error}</p>`;
+                        }
+                  } catch (error) {
+                        // Debugging: Log network errors
+                        console.error('Network error:', error);
+                        document.getElementById('result').innerHTML = `<p>Network error. Please try again later.</p>`;
+                  }
+            });
+      </script>
+</body>
+
+</html>

@@ -1,0 +1,16 @@
+services:
+  backend:
+    build:
+      context: ./backend # Path to the backend directory containing Dockerfile
+    ports:
+      - "8080:5000" # Map backend port 5000 to host port 8080
+    env_file:
+      - ./backend/.env # Load environment variables from the .env file inside the backend folder
+
+  frontend:
+    build:
+      context: ./frontend # Path to the frontend directory containing Dockerfile
+    ports:
+      - "3000:80" # Map frontend port 80 to host port 3000
+    depends_on:
+      - backend # Ensure backend service starts before frontend
